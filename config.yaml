@@ -1,0 +1,9 @@
+database:
+  path: sua.db
+market:
+  api:
+    base_url: https://example.com
+triage:
+  thresholds: {}
+calibration:
+  enabled: true
