@@ -14,7 +14,7 @@ class MarketBrain:
         self._config = config
         self._client = ApiClient(config.get("api", {}))
 
-    def analyze(self) -> MarketSignal:
+    def analyze(self, context: dict[str, Any] | None = None) -> MarketSignal:
         """Return a summary of the current market conditions."""
-        data = self._client.fetch_market_data()
+        data = self._client.fetch_market_data(context)
         return MarketSignal(summary="No signal generated.", metadata=data)

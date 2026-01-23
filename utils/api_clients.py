@@ -10,6 +10,11 @@ class ApiClient:
     def __init__(self, config: dict[str, Any]) -> None:
         self._config = config
 
-    def fetch_market_data(self) -> dict[str, Any]:
+    def fetch_market_data(self, context: dict[str, Any] | None = None) -> dict[str, Any]:
         """Return mocked market data payloads."""
-        return {"status": "ok", "data": []}
+        return {
+            "status": "ok",
+            "source": self._config.get("base_url", "mock"),
+            "context": context or {},
+            "data": [],
+        }

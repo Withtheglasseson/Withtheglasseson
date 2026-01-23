@@ -12,11 +12,10 @@ class TriageBrain:
     def __init__(self, config: dict[str, Any]) -> None:
         self._config = config
 
-    def prioritize(self, signal: MarketSignal) -> dict[str, Any]:
-        """Return a dictionary-based triage decision."""
-        decision = TriageDecision(
+    def prioritize(self, signal: MarketSignal) -> TriageDecision:
+        """Return a triage decision for the given signal."""
+        return TriageDecision(
             priority="low",
             rationale="Placeholder triage outcome.",
             payload={"signal": signal.summary, "metadata": signal.metadata},
         )
-        return decision.__dict__
