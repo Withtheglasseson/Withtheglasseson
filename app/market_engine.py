@@ -4,29 +4,31 @@ from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
-class Listing:
+class ListingSnapshot:
     price: float
-    days: float
+    days: int
 
 
 @dataclass(frozen=True)
-class MarketOutput:
+class MarketData:
     move_value: float
-    avg_dom: float
-    marketability: str
+    avg_dom: int
+    marketability: str  # FAST, NORMAL, SLOW
+    listing_count: int
 
 
-def evaluate_market(listings: list[Listing]) -> MarketOutput:
-    """
-    Evaluate Phase 3 market outputs.
-
-    Note: "move_value" is implemented as the arithmetic mean of listing prices.
-    """
+def analyze_market(listings: list[ListingSnapshot]) -> MarketData:
     if not listings:
-        raise ValueError("At least one listing is required")
+        raise ValueError("No listings provided")
 
-    avg_price = sum(item.price for item in listings) / len(listings)
-    avg_dom = sum(item.days for item in listings) / len(listings)
+    fast_prices = [row.price for row in listings if row.days <= 10]
+
+    if fast_prices:
+        move_value = sum(fast_prices) / len(fast_prices)
+    else:
+        move_value = sum(row.price for row in listings) / len(listings)
+
+    avg_dom = int(round(sum(row.days for row in listings) / len(listings)))
 
     if avg_dom <= 10:
         marketability = "FAST"
@@ -35,8 +37,9 @@ def evaluate_market(listings: list[Listing]) -> MarketOutput:
     else:
         marketability = "SLOW"
 
-    return MarketOutput(
-        move_value=round(avg_price, 2),
-        avg_dom=round(avg_dom, 2),
+    return MarketData(
+        move_value=round(move_value, 2),
+        avg_dom=avg_dom,
         marketability=marketability,
+        listing_count=len(listings),
     )
