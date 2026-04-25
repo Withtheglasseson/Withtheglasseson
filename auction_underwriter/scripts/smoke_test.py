@@ -15,11 +15,12 @@ import json
 import sys
 import urllib.error
 import urllib.request
+from typing import Any
 
 BASE_URL = "http://127.0.0.1:8000"
 
 
-def request_json(method: str, path: str, payload: dict | None = None) -> dict:
+def request_json(method: str, path: str, payload: dict | None = None) -> Any:
     url = f"{BASE_URL}{path}"
     data = None
     headers = {"Content-Type": "application/json"}
@@ -44,11 +45,21 @@ def assert_equal(actual: object, expected: object, label: str) -> None:
     print(f"✅ {label}: {actual!r}")
 
 
+def assert_true(condition: bool, label: str) -> None:
+    if not condition:
+        raise AssertionError(label)
+    print(f"✅ {label}")
+
+
 def main() -> int:
     print("Running SAU local smoke test...")
 
     health = request_json("GET", "/health")
     assert_equal(health.get("status"), "ok", "health status")
+    assert_equal(health.get("version"), "0.3.0", "api version")
+
+    rulebook = request_json("GET", "/rulebook")
+    assert_equal(rulebook.get("rulebook_version"), "SAU_MASTER_V0.2.0", "rulebook version")
 
     stop_payload = {
         "year": 2008,
@@ -89,7 +100,21 @@ def main() -> int:
     deal_math = full_response.get("deal_math") or {}
     assert_equal(deal_math.get("max_buy"), 3700, "max buy")
 
-    print("\nSmoke test passed. Gatekeeper and full underwrite path are working.")
+    saved_response = request_json("POST", "/underwrite/save", full_payload)
+    assert_equal(saved_response.get("saved"), True, "saved run flag")
+    run_id = saved_response.get("run_id")
+    assert_true(isinstance(run_id, int) and run_id > 0, "run id created")
+
+    runs = request_json("GET", "/runs?limit=5")
+    assert_true(isinstance(runs, list), "runs endpoint returns a list")
+    assert_true(any(run.get("id") == run_id for run in runs), "saved run appears in recent runs")
+
+    run_detail = request_json("GET", f"/runs/{run_id}")
+    assert_equal(run_detail.get("id"), run_id, "saved run detail id")
+    assert_equal(run_detail.get("rulebook_version"), "SAU_MASTER_V0.2.0", "saved rulebook version")
+    assert_equal(run_detail.get("max_buy"), 3700, "saved max buy")
+
+    print("\nSmoke test passed. Gates, underwrite path, and SQLite saved runs are working.")
     return 0
 
 
