@@ -73,6 +73,21 @@ http://127.0.0.1:8000/rulebook
 http://127.0.0.1:8000/docs
 ```
 
+## Smoke Test
+
+After the API is running, open a second terminal and run:
+
+```bash
+cd auction_underwriter
+python scripts/smoke_test.py
+```
+
+This checks:
+
+- `/health` returns OK
+- missing specs stop at Gate 2
+- completed Corolla example returns A-F with BUY and Max Buy
+
 ## Example STOP Request
 
 POST to `/underwrite` with missing specs:
