@@ -10,12 +10,29 @@ The app answers one core question:
 
 ## Current Version
 
-Version `0.2.0` adds the SAU master gate system.
+Version `0.3.0` adds hybrid stability storage.
 
-The app now supports two response types:
+The app now supports:
 
 1. `STOP` response when a required gate is missing.
 2. Completed A-F underwriting response when all hard gates pass.
+3. Saved underwrite records in local SQLite.
+
+## Hybrid Stability Rule
+
+Do not rely on AI memory for business-critical behavior.
+
+Stable behavior must live in:
+
+- Python code
+- Versioned rulebook files
+- Tests
+- SQLite/database records
+- Git commits
+
+AI can help explain, summarize, and structure messy inputs, but deterministic code owns gates, formulas, verdict rules, and saved decision records.
+
+See `docs/HYBRID_STABILITY_ARCHITECTURE.md`.
 
 ## Locked Rules
 
@@ -73,6 +90,21 @@ http://127.0.0.1:8000/rulebook
 http://127.0.0.1:8000/docs
 ```
 
+## API Endpoints
+
+```text
+GET  /health
+GET  /rulebook
+POST /underwrite
+POST /underwrite/save
+GET  /runs
+GET  /runs/{run_id}
+```
+
+Use `/underwrite` for temporary testing.
+
+Use `/underwrite/save` when you want the decision recorded in SQLite.
+
 ## Smoke Test
 
 After the API is running, open a second terminal and run:
@@ -85,8 +117,12 @@ python scripts/smoke_test.py
 This checks:
 
 - `/health` returns OK
+- `/rulebook` returns the versioned rulebook
 - missing specs stop at Gate 2
 - completed Corolla example returns A-F with BUY and Max Buy
+- `/underwrite/save` saves a record
+- `/runs` lists saved records
+- `/runs/{run_id}` returns the full saved request and response
 
 ## Example STOP Request
 
@@ -108,7 +144,7 @@ STOP at Gate 2 and ask for trim only.
 
 ## Example Completed Request
 
-POST to `/underwrite`:
+POST to `/underwrite` or `/underwrite/save`:
 
 ```json
 {
@@ -142,7 +178,19 @@ A-F underwriting response with Max Buy, recon reserve, market snapshot, auction 
 
 ## Current Status
 
-This is still a connected MVP skeleton. Real data integrations are intentionally not wired yet.
+This is still a connected MVP skeleton. Real external data integrations are intentionally not wired yet.
+
+Already real code:
+
+- Gatekeeper
+- Rulebook constants
+- Request/response models
+- Max Buy math
+- Recon reserve structure
+- Market desirability scoring
+- Verdict comparison
+- SQLite saved runs
+- Smoke test
 
 Stubbed for later:
 
