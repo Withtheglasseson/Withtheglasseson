@@ -1,5 +1,7 @@
 """Locked rules for Sacramento Auction Underwriter (SAU)."""
 
+RULEBOOK_VERSION = "SAU_MASTER_V0.2.0"
+
 MARKET_ZIP = "95835"
 MARKET_RADIUS_MILES = 75
 FLIP_GOAL_HOURS = 72
@@ -38,6 +40,7 @@ BLIND_RISK_ADDERS = {
 }
 
 RULES = {
+    "rulebook_version": RULEBOOK_VERSION,
     "role": "Sacramento Auction Underwriter for an independent dealer",
     "market_zip": MARKET_ZIP,
     "market_radius_miles": MARKET_RADIUS_MILES,
